@@ -103,9 +103,12 @@ let particles = [];
 
 function initParticles() {
     particles = [];
-    const fontSize = 22;
-    const lineHeight = 60;
-    const spacing = 120;
+    
+    // Responsive font size and spacing based on screen width
+    const isMobile = window.innerWidth < 768;
+    const fontSize = isMobile ? 16 : 22;
+    const lineHeight = isMobile ? 45 : 60;
+    const spacing = isMobile ? 80 : 120;
     
     ctx.font = `${fontSize}px serif`;
     ctx.fillStyle = '#fff';
@@ -192,6 +195,29 @@ function animate() {
 document.addEventListener('mousemove', (e) => {
     mouse.x = e.clientX;
     mouse.y = e.clientY;
+});
+
+// Touch move event for mobile
+document.addEventListener('touchmove', (e) => {
+    e.preventDefault();
+    if (e.touches.length > 0) {
+        mouse.x = e.touches[0].clientX;
+        mouse.y = e.touches[0].clientY;
+    }
+}, { passive: false });
+
+// Touch start event for mobile
+document.addEventListener('touchstart', (e) => {
+    if (e.touches.length > 0) {
+        mouse.x = e.touches[0].clientX;
+        mouse.y = e.touches[0].clientY;
+    }
+});
+
+// Touch end event for mobile
+document.addEventListener('touchend', () => {
+    mouse.x = -1000;
+    mouse.y = -1000;
 });
 
 // Mouse leave event
