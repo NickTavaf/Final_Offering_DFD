@@ -94,7 +94,8 @@ class Particle {
     }
     
     draw() {
-        ctx.fillStyle = '#fff';
+        // Draw header particles in red, others in white
+        ctx.fillStyle = this.isHeader ? '#ff0000' : '#fff';
         ctx.fillRect(this.x, this.y, this.size, this.size);
     }
 }
@@ -107,10 +108,69 @@ function initParticles() {
     
     // Responsive font size and spacing based on screen width
     const isMobile = window.innerWidth < 768;
-    const fontSize = isMobile ? 26 : 22;
-    const lineHeight = isMobile ? 65 : 60;
-    const spacing = isMobile ? 100 : 120;
+    const fontSize = isMobile ? 24 : 22;
+    const lineHeight = isMobile ? 55 : 60;
+    const spacing = isMobile ? 90 : 120;
     
+    ctx.font = `${fontSize}px serif`;
+    ctx.fillStyle = '#fff';
+    
+    // Add header text at the top
+    const headerFontSize = isMobile ? 25 : 30;
+    ctx.font = `${headerFontSize}px serif`;
+    ctx.fillStyle = '#ff0000'; // Red color
+    
+    let headerLines = [];
+    let headerY;
+    
+    if (isMobile) {
+        // Split header into multiple lines for mobile
+        headerLines = [
+            "These are the Names of the",
+            "journalists who have died in palestine"
+        ];
+        headerY = 30;
+    } else {
+        // Split header into multiple lines for desktop too
+        headerLines = [
+            "These are the Names of the journalists who have died in palestine"
+        ];
+        headerY = 50;
+    }
+    
+    // Draw and convert each line to particles
+    headerLines.forEach((line, index) => {
+        const lineWidth = ctx.measureText(line).width;
+        const lineX = (canvas.width - lineWidth) / 2;
+        const lineY = headerY + (index * (headerFontSize + 5));
+        
+        ctx.fillText(line, lineX, lineY);
+        
+        // Convert line to particles
+        const lineImageData = ctx.getImageData(Math.floor(lineX), Math.floor(lineY - headerFontSize), Math.ceil(lineWidth), headerFontSize + 2);
+        const linePixels = lineImageData.data;
+        const lineImgWidth = Math.ceil(lineWidth);
+        
+        for (let py = 0; py < headerFontSize + 2; py += 2) {
+            for (let px = 0; px < lineImgWidth; px += 2) {
+                const pixelIndex = (py * lineImgWidth + px) * 4;
+                const alpha = linePixels[pixelIndex + 3];
+                
+                if (alpha > 128) {
+                    const particleX = lineX + px;
+                    const particleY = lineY - headerFontSize + py;
+                    const particle = new Particle(particleX, particleY, particleX, particleY);
+                    particle.isHeader = true; // Mark as header particle
+                    particles.push(particle);
+                }
+            }
+        }
+    });
+    
+    // Calculate where to start the names based on last header line
+    const lastHeaderY = headerY + ((headerLines.length - 1) * (headerFontSize + 5));
+    
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.font = `${fontSize}px serif`;
     ctx.fillStyle = '#fff';
     
@@ -120,12 +180,16 @@ function initParticles() {
     // Edge padding to prevent cutoff
     const edgePadding = isMobile ? 20 : 30;
     
+    // Start rows below the header
+    const headerPadding = isMobile ? -4.9 : 10; // Can be any decimal value
+    const startRow = Math.ceil((lastHeaderY + headerPadding) / lineHeight);
+    
     // For each row, place names and pixel fragments mixed together
-    for (let row = 0; row < rows; row++) {
+    for (let row = startRow; row < rows; row++) {
         const y = row * lineHeight + fontSize + (Math.random() * 30 - 15);
         let currentX = edgePadding + Math.random() * 50;
         
-        while (currentX < canvas.width - edgePadding - (isMobile ? 0 : 90)) {
+        while (currentX < canvas.width - edgePadding - (isMobile ? 0 : 150)) {
             // Randomly decide if this position should be a name or pixel fragment
             // Mobile: 60% names, 40% pixels | Desktop: 65% names, 35% pixels
             const nameThreshold = isMobile ? 0.40 : 0.35;
