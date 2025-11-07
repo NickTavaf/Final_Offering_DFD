@@ -60,7 +60,7 @@ class Particle {
         
         // Mouse repulsion radius - bigger on mobile for easier touch interaction
         const isMobile = window.innerWidth < 768;
-        const maxDistance = isMobile ? 40 : 15;
+        const maxDistance = isMobile ? 100 : 15;
         
         // Only move pixels if they're inside the circle
         if (distance < maxDistance) {
