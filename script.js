@@ -106,6 +106,9 @@ let particles = [];
 function initParticles() {
     particles = [];
     
+    // Clear the entire canvas first
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    
     // Responsive font size and spacing based on screen width
     const isMobile = window.innerWidth < 768;
     const fontSize = isMobile ? 24 : 22;
@@ -181,7 +184,7 @@ function initParticles() {
     const edgePadding = isMobile ? 20 : 30;
     
     // Start rows below the header
-    const headerPadding = isMobile ? -4.9 : 10; // Can be any decimal value
+    const headerPadding = isMobile ? 5 : 10; // Can be any decimal value
     const startRow = Math.ceil((lastHeaderY + headerPadding) / lineHeight);
     
     // For each row, place names and pixel fragments mixed together
@@ -296,12 +299,12 @@ document.addEventListener('touchend', () => {
     mouse.y = -1000;
 });
 
-// Click to reload for desktop
+// Click to regenerate names without page reload
 canvas.addEventListener('click', () => {
-    location.reload();
+    initParticles();
 });
 
-// Double-tap to reload for mobile
+// Double-tap to regenerate for mobile
 let lastTap = 0;
 canvas.addEventListener('touchend', (e) => {
     const currentTime = new Date().getTime();
@@ -309,7 +312,7 @@ canvas.addEventListener('touchend', (e) => {
     
     // If tapped twice within 300ms, it's a double-tap
     if (tapLength < 300 && tapLength > 0) {
-        location.reload();
+        initParticles();
     }
     lastTap = currentTime;
 });
