@@ -106,9 +106,9 @@ function initParticles() {
     
     // Responsive font size and spacing based on screen width
     const isMobile = window.innerWidth < 768;
-    const fontSize = isMobile ? 16 : 22;
-    const lineHeight = isMobile ? 45 : 60;
-    const spacing = isMobile ? 80 : 120;
+    const fontSize = isMobile ? 28 : 22;
+    const lineHeight = isMobile ? 65 : 60;
+    const spacing = isMobile ? 100 : 120;
     
     ctx.font = `${fontSize}px serif`;
     ctx.fillStyle = '#fff';
@@ -123,7 +123,9 @@ function initParticles() {
         
         while (currentX < canvas.width + 150) {
             // Randomly decide if this position should be a name or pixel fragment
-            const isName = Math.random() > 0.35; // 65% chance of being a name, 35% pixel fragment
+            // Mobile: 60% names, 40% pixels | Desktop: 65% names, 35% pixels
+            const nameThreshold = isMobile ? 0.40 : 0.35;
+            const isName = Math.random() > nameThreshold;
             
             if (isName) {
                 // Draw a name
@@ -218,6 +220,24 @@ document.addEventListener('touchstart', (e) => {
 document.addEventListener('touchend', () => {
     mouse.x = -1000;
     mouse.y = -1000;
+});
+
+// Click to reload for desktop
+canvas.addEventListener('click', () => {
+    location.reload();
+});
+
+// Double-tap to reload for mobile
+let lastTap = 0;
+canvas.addEventListener('touchend', (e) => {
+    const currentTime = new Date().getTime();
+    const tapLength = currentTime - lastTap;
+    
+    // If tapped twice within 300ms, it's a double-tap
+    if (tapLength < 300 && tapLength > 0) {
+        location.reload();
+    }
+    lastTap = currentTime;
 });
 
 // Mouse leave event
