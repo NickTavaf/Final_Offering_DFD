@@ -107,7 +107,7 @@ function initParticles() {
     
     // Responsive font size and spacing based on screen width
     const isMobile = window.innerWidth < 768;
-    const fontSize = isMobile ? 28 : 22;
+    const fontSize = isMobile ? 24 : 22;
     const lineHeight = isMobile ? 65 : 60;
     const spacing = isMobile ? 100 : 120;
     
