@@ -60,7 +60,7 @@ class Particle {
         
         // Mouse repulsion radius - bigger on mobile for easier touch interaction
         const isMobile = window.innerWidth < 768;
-        const maxDistance = isMobile ? 92.5 : 25;
+        const maxDistance = isMobile ? 40 : 15;
         
         // Only move pixels if they're inside the circle
         if (distance < maxDistance) {
@@ -117,12 +117,15 @@ function initParticles() {
     // Calculate how many rows we need
     const rows = Math.ceil(canvas.height / lineHeight) + 2;
     
+    // Edge padding to prevent cutoff
+    const edgePadding = isMobile ? 20 : 30;
+    
     // For each row, place names and pixel fragments mixed together
     for (let row = 0; row < rows; row++) {
         const y = row * lineHeight + fontSize + (Math.random() * 30 - 15);
-        let currentX = Math.random() * 100;
+        let currentX = edgePadding + Math.random() * 50;
         
-        while (currentX < canvas.width + 150) {
+        while (currentX < canvas.width - edgePadding - (isMobile ? 0 : 90)) {
             // Randomly decide if this position should be a name or pixel fragment
             // Mobile: 60% names, 40% pixels | Desktop: 65% names, 35% pixels
             const nameThreshold = isMobile ? 0.40 : 0.35;
@@ -134,6 +137,12 @@ function initParticles() {
                 const text = name + ',';
                 
                 const textWidth = ctx.measureText(text).width;
+                
+                // Check if name would go past right edge
+                if (currentX + textWidth > canvas.width - edgePadding) {
+                    break; // Stop this row if name would be cut off
+                }
+                
                 ctx.fillText(text, currentX, y);
                 
                 const imageData = ctx.getImageData(Math.floor(currentX), Math.floor(y - fontSize), Math.ceil(textWidth), fontSize + 2);
