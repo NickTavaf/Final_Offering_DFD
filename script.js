@@ -1,5 +1,7 @@
 const canvas = document.getElementById('canvas');
 const ctx = canvas.getContext('2d');
+const namesImageLink = document.getElementById('namesImageLink');
+const namesImage = document.getElementById('namesImage');
 
 // Set canvas to full window size
 function resizeCanvas() {
@@ -50,6 +52,7 @@ class Particle {
         this.size = 2;
         this.speedX = 0;
         this.speedY = 0;
+        this.isHeader = false;
     }
     
     update() {
@@ -123,36 +126,23 @@ function initParticles() {
     ctx.font = `${headerFontSize}px serif`;
     ctx.fillStyle = '#ff0000'; // Red color
     
-    let headerLines = [];
     let headerY;
     
     if (isMobile) {
-        // Split header into multiple lines for mobile
-        headerLines = [
-            "These are the Names of the",
-            "journalists who have died in palestine"
-        ];
+        // Mobile: Two lines
         headerY = 30;
-    } else {
-        // Split header into multiple lines for desktop too
-        headerLines = [
-            "These are the Names of the journalists who have died in palestine"
-        ];
-        headerY = 50;
-    }
-    
-    // Draw and convert each line to particles
-    headerLines.forEach((line, index) => {
-        const lineWidth = ctx.measureText(line).width;
-        const lineX = (canvas.width - lineWidth) / 2;
-        const lineY = headerY + (index * (headerFontSize + 5));
         
-        ctx.fillText(line, lineX, lineY);
+        // Line 1: "These are the "
+        const line1 = "These are the ";
+        const line1Width = ctx.measureText(line1).width;
+        const line1X = (canvas.width - line1Width) / 2 - 70; // Slight left offset
         
-        // Convert line to particles
-        const lineImageData = ctx.getImageData(Math.floor(lineX), Math.floor(lineY - headerFontSize), Math.ceil(lineWidth), headerFontSize + 2);
-        const linePixels = lineImageData.data;
-        const lineImgWidth = Math.ceil(lineWidth);
+        ctx.fillText(line1, line1X, headerY);
+        
+        // Convert line 1 to particles
+        let lineImageData = ctx.getImageData(Math.floor(line1X), Math.floor(headerY - headerFontSize), Math.ceil(line1Width), headerFontSize + 2);
+        let linePixels = lineImageData.data;
+        let lineImgWidth = Math.ceil(line1Width);
         
         for (let py = 0; py < headerFontSize + 2; py += 2) {
             for (let px = 0; px < lineImgWidth; px += 2) {
@@ -160,18 +150,153 @@ function initParticles() {
                 const alpha = linePixels[pixelIndex + 3];
                 
                 if (alpha > 128) {
-                    const particleX = lineX + px;
-                    const particleY = lineY - headerFontSize + py;
+                    const particleX = line1X + px;
+                    const particleY = headerY - headerFontSize + py;
                     const particle = new Particle(particleX, particleY, particleX, particleY);
-                    particle.isHeader = true; // Mark as header particle
+                    particle.isHeader = true;
                     particles.push(particle);
                 }
             }
         }
-    });
+        
+        // Position the Names image
+        const namesX = line1X + line1Width;
+        const namesWidth = ctx.measureText("Names").width;
+        
+        // Set image size and position
+        namesImage.style.height = `${headerFontSize * 1.2}px`;
+        namesImageLink.style.top = `${headerY - headerFontSize + 3}px`;
+        namesImageLink.style.left = `${namesX - 2}px`;
+        namesImageLink.style.width = `${namesWidth}px`;
+        
+        // Line 2: " of the"
+        const line2 = " of the";
+        const line2X = namesX + namesWidth;
+        ctx.fillText(line2, line2X, headerY);
+        
+        // Convert line 2 to particles
+        const line2Width = ctx.measureText(line2).width;
+        lineImageData = ctx.getImageData(Math.floor(line2X), Math.floor(headerY - headerFontSize), Math.ceil(line2Width), headerFontSize + 2);
+        linePixels = lineImageData.data;
+        lineImgWidth = Math.ceil(line2Width);
+        
+        for (let py = 0; py < headerFontSize + 2; py += 2) {
+            for (let px = 0; px < lineImgWidth; px += 2) {
+                const pixelIndex = (py * lineImgWidth + px) * 4;
+                const alpha = linePixels[pixelIndex + 3];
+                
+                if (alpha > 128) {
+                    const particleX = line2X + px;
+                    const particleY = headerY - headerFontSize + py;
+                    const particle = new Particle(particleX, particleY, particleX, particleY);
+                    particle.isHeader = true;
+                    particles.push(particle);
+                }
+            }
+        }
+        
+        // Line 3: "journalists who have died in palestine"
+        headerY += headerFontSize + 5;
+        const line3 = "journalists who have died in palestine";
+        const line3Width = ctx.measureText(line3).width;
+        const line3X = (canvas.width - line3Width) / 2;
+        
+        ctx.fillText(line3, line3X, headerY);
+        
+        // Convert line 3 to particles
+        lineImageData = ctx.getImageData(Math.floor(line3X), Math.floor(headerY - headerFontSize), Math.ceil(line3Width), headerFontSize + 2);
+        linePixels = lineImageData.data;
+        lineImgWidth = Math.ceil(line3Width);
+        
+        for (let py = 0; py < headerFontSize + 2; py += 2) {
+            for (let px = 0; px < lineImgWidth; px += 2) {
+                const pixelIndex = (py * lineImgWidth + px) * 4;
+                const alpha = linePixels[pixelIndex + 3];
+                
+                if (alpha > 128) {
+                    const particleX = line3X + px;
+                    const particleY = headerY - headerFontSize + py;
+                    const particle = new Particle(particleX, particleY, particleX, particleY);
+                    particle.isHeader = true;
+                    particles.push(particle);
+                }
+            }
+        }
+        
+    } else {
+        // Desktop: One line
+        headerY = 50;
+        
+        const part1 = "These are the ";
+        const part2 = " of the journalists who have died in palestine";
+        
+        // Calculate widths
+        const part1Width = ctx.measureText(part1).width;
+        const namesWidth = ctx.measureText("Names").width;
+        const part2Width = ctx.measureText(part2).width;
+        const totalWidth = part1Width + namesWidth + part2Width;
+        
+        const startX = (canvas.width - totalWidth) / 2;
+        
+        // Draw part 1: "These are the "
+        ctx.fillText(part1, startX, headerY);
+        
+        // Convert part 1 to particles
+        let lineImageData = ctx.getImageData(Math.floor(startX), Math.floor(headerY - headerFontSize), Math.ceil(part1Width), headerFontSize + 2);
+        let linePixels = lineImageData.data;
+        let lineImgWidth = Math.ceil(part1Width);
+        
+        for (let py = 0; py < headerFontSize + 2; py += 2) {
+            for (let px = 0; px < lineImgWidth; px += 2) {
+                const pixelIndex = (py * lineImgWidth + px) * 4;
+                const alpha = linePixels[pixelIndex + 3];
+                
+                if (alpha > 128) {
+                    const particleX = startX + px;
+                    const particleY = headerY - headerFontSize + py;
+                    const particle = new Particle(particleX, particleY, particleX, particleY);
+                    particle.isHeader = true;
+                    particles.push(particle);
+                }
+            }
+        }
+        
+        // Position the Names image
+        const namesX = startX + part1Width;
+        
+        // Set image size and position
+        namesImage.style.height = `${headerFontSize * 1.19}px`;
+        namesImageLink.style.top = `${headerY - headerFontSize + 3}px`;
+        namesImageLink.style.left = `${namesX}px`;
+        namesImageLink.style.width = `${namesWidth}px`;
+        
+        // Draw part 2: " of the journalists who have died in palestine"
+        const part2X = namesX + namesWidth;
+        ctx.fillText(part2, part2X, headerY);
+        
+        // Convert part 2 to particles
+        lineImageData = ctx.getImageData(Math.floor(part2X), Math.floor(headerY - headerFontSize), Math.ceil(part2Width), headerFontSize + 2);
+        linePixels = lineImageData.data;
+        lineImgWidth = Math.ceil(part2Width);
+        
+        for (let py = 0; py < headerFontSize + 2; py += 2) {
+            for (let px = 0; px < lineImgWidth; px += 2) {
+                const pixelIndex = (py * lineImgWidth + px) * 4;
+                const alpha = linePixels[pixelIndex + 3];
+                
+                if (alpha > 128) {
+                    const particleX = part2X + px;
+                    const particleY = headerY - headerFontSize + py;
+                    const particle = new Particle(particleX, particleY, particleX, particleY);
+                    particle.isHeader = true;
+                    particles.push(particle);
+                }
+            }
+        }
+    }
     
     // Calculate where to start the names based on last header line
-    const lastHeaderY = headerY + ((headerLines.length - 1) * (headerFontSize + 5));
+    const lastHeaderY = headerY;
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.font = `${fontSize}px serif`;
