@@ -26,13 +26,20 @@ class Particle {
         this.isRed = isRed;
     }
     
-    draw() {
-        ctx.fillStyle = this.isRed ? '#ff0000' : '#fff';
+    draw(grayscale = false) {
+        if (grayscale && this.isRed) {
+            ctx.fillStyle = '#505050'; // Gray color
+        } else {
+            ctx.fillStyle = this.isRed ? '#ff0000' : '#fff';
+        }
         ctx.fillRect(this.x, this.y, this.size, this.size);
     }
 }
 
 let particles = [];
+let statementParticles = [];
+let statementBounds = null;
+let isHoveringStatement = false;
 
 function wrapText(context, text, maxWidth) {
     const words = text.split(' ');
@@ -55,21 +62,37 @@ function wrapText(context, text, maxWidth) {
 
 function convertToParticles() {
     particles = [];
+    statementParticles = [];
     
     const isMobile = window.innerWidth < 768;
     
     // Header
     const headerFontSize = isMobile ? 28 : 36;
     ctx.font = `${headerFontSize}px serif`;
-    ctx.fillStyle = '#ff0000';
     
     const headerText = "Artist Statement";
     const headerWidth = ctx.measureText(headerText).width;
     const headerX = (canvas.width - headerWidth) / 2;
     const headerY = isMobile ? 60 : 80;
     
+    // Calculate "Statement" bounds for click detection
+    const artistWidth = ctx.measureText("Artist ").width;
+    const statementWidth = ctx.measureText("Statement").width;
+    statementBounds = {
+        x: headerX + artistWidth,
+        y: headerY - headerFontSize,
+        width: statementWidth,
+        height: headerFontSize + 10
+    };
+    
+    ctx.fillStyle = '#ff0000';
     ctx.fillText(headerText, headerX, headerY);
-    createParticles(headerText, headerX, headerY, headerFontSize, true);
+    
+    // Create particles for "Artist "
+    createParticles("Artist ", headerX, headerY, headerFontSize, true, false);
+    
+    // Create particles for "Statement" separately so we can track them
+    createParticles("Statement", headerX + artistWidth, headerY, headerFontSize, true, true);
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     
@@ -90,7 +113,7 @@ function convertToParticles() {
     lines.forEach((line, index) => {
         const y = contentStartY + (index * lineHeight);
         ctx.fillText(line, contentX, y);
-        createParticles(line, contentX, y, contentFontSize, false);
+        createParticles(line, contentX, y, contentFontSize, false, false);
     });
     
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -102,7 +125,7 @@ function convertToParticles() {
     if (content) content.style.display = 'none';
 }
 
-function createParticles(text, x, y, fontSize, isRed) {
+function createParticles(text, x, y, fontSize, isRed, isStatement) {
     const textWidth = ctx.measureText(text).width;
     const tempCanvas = document.createElement('canvas');
     const tempCtx = tempCanvas.getContext('2d');
@@ -123,7 +146,12 @@ function createParticles(text, x, y, fontSize, isRed) {
             const alpha = pixels[index + 3];
             
             if (alpha > 128) {
-                particles.push(new Particle(x + px, y - fontSize + py, isRed));
+                const particle = new Particle(x + px, y - fontSize + py, isRed);
+                if (isStatement) {
+                    statementParticles.push(particle);
+                } else {
+                    particles.push(particle);
+                }
             }
         }
     }
@@ -133,12 +161,46 @@ function animate() {
     ctx.fillStyle = 'rgba(0, 0, 0, 1)';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
     
+    // Draw regular particles
     particles.forEach(particle => {
-        particle.draw();
+        particle.draw(false);
+    });
+    
+    // Draw statement particles with grayscale if hovering
+    statementParticles.forEach(particle => {
+        particle.draw(isHoveringStatement);
     });
     
     requestAnimationFrame(animate);
 }
+
+// Make canvas clickable for "Statement"
+canvas.style.pointerEvents = 'auto';
+canvas.style.cursor = 'default';
+
+canvas.addEventListener('mousemove', (e) => {
+    if (statementBounds && 
+        e.clientX >= statementBounds.x && 
+        e.clientX <= statementBounds.x + statementBounds.width &&
+        e.clientY >= statementBounds.y && 
+        e.clientY <= statementBounds.y + statementBounds.height) {
+        canvas.style.cursor = 'pointer';
+        isHoveringStatement = true;
+    } else {
+        canvas.style.cursor = 'default';
+        isHoveringStatement = false;
+    }
+});
+
+canvas.addEventListener('click', (e) => {
+    if (statementBounds && 
+        e.clientX >= statementBounds.x && 
+        e.clientX <= statementBounds.x + statementBounds.width &&
+        e.clientY >= statementBounds.y && 
+        e.clientY <= statementBounds.y + statementBounds.height) {
+        window.location.href = 'index.html';
+    }
+});
 
 window.addEventListener('resize', () => {
     resizeCanvas();
