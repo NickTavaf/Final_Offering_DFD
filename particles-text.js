@@ -105,7 +105,7 @@ function convertToParticles() {
     const contentX = (canvas.width - maxWidth) / 2;
     const contentStartY = headerY + (isMobile ? 80 : 120);
     
-    const paragraph = "This work explores the fragmented nature of memory and testimony, rendering names as particles that disperse and reform. Each interaction disrupts the surface, scattering individual stories before they coalesce again—a visual metaphor for how collective memory is continuously shaped and reshaped. The particles respond to presence, acknowledging the viewer's role in bearing witness. Through this digital memorial, we confront the tension between remembering and forgetting, between permanence and erasure. The names persist, returning to their positions despite disruption, insisting on being seen, being counted, being remembered.";
+    const paragraph = "The Offering I created is an interactive website that shows a list of the names of journalists who were killed in Gaza. Each name appears on the screen, but when you try to hover over it with your mouse, the name disappears. The design is simple but intentional. It's supposed to reflect the way manny of these deaths are briefly reported and then forgotten. The act of moving the mouse, something small and easy becomes an act of erasure and forgetness. I want the viewer to experience this tension between remembering and losing. Even though the names vanish visually, they remain in the code, always present in the structure of the site and always going to reappear. This mirrors the idea that memory and mourning can exist even when it's not publicly visible.";
     
     const lines = wrapText(ctx, paragraph, maxWidth);
     const lineHeight = contentFontSize * 1.8;
