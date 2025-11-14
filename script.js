@@ -197,7 +197,7 @@ function initParticles() {
         
         // Line 3: "journalists who have died in palestine"
         headerY += headerFontSize + 5;
-        const line3 = "journalists who have died in palestine";
+        const line3 = "people who have died in palestine";
         const line3Width = ctx.measureText(line3).width;
         const line3X = (canvas.width - line3Width) / 2;
         
@@ -228,7 +228,7 @@ function initParticles() {
         headerY = 50;
         
         const part1 = "These are the ";
-        const part2 = " of the journalists who have died in palestine";
+        const part2 = " of the people who have died in palestine";
         
         // Calculate widths
         const part1Width = ctx.measureText(part1).width;
