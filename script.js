@@ -121,7 +121,7 @@ function initParticles() {
     ctx.font = `${fontSize}px serif`;
     ctx.fillStyle = '#fff';
     
-    // Add header text at the top
+    // Add header text at the topx
     const headerFontSize = isMobile ? 25 : 30;
     ctx.font = `${headerFontSize}px serif`;
     ctx.fillStyle = '#ff0000'; // Red color
@@ -316,12 +316,16 @@ function initParticles() {
     for (let row = startRow; row < rows; row++) {
         const y = row * lineHeight + fontSize + (Math.random() * 30 - 15);
         let currentX = edgePadding + Math.random() * 50;
+        let namesInRow = 0; // Track names in this row
         
         while (currentX < canvas.width - edgePadding - (isMobile ? 0 : 150)) {
             // Randomly decide if this position should be a name or pixel fragment
             // Mobile: 60% names, 40% pixels | Desktop: 65% names, 35% pixels
             const nameThreshold = isMobile ? 0.40 : 0.35;
-            const isName = Math.random() > nameThreshold;
+            
+            // Force at least 3 names per row on mobile
+            const forceNameOnMobile = isMobile && namesInRow < 3;
+            const isName = forceNameOnMobile || Math.random() > nameThreshold;
             
             if (isName) {
                 // Draw a name
@@ -354,6 +358,7 @@ function initParticles() {
                     }
                 }
                 
+                namesInRow++; // Increment name counter
                 currentX += textWidth + spacing + (Math.random() * 150);
             } else {
                 // Draw a pixel fragment
